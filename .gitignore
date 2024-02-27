@@ -1,0 +1,16 @@
+
+/data
+
+/tools
+
+/output
+
+/scripts/python/__pycache__
+/scripts/python/.nfs*
+
+/.snakemake
+
+log*
+*.sh
+*.out
+*.log
