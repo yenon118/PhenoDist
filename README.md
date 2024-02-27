@@ -23,7 +23,7 @@ numpy>=1.26
 pandas>=2.2
 Beagle>=5.2
 SnpEff>=4.3
-``` 
+```
 
 Miniconda can be downloaded from [https://docs.anaconda.com/free/miniconda/](https://docs.anaconda.com/free/miniconda/).
 
@@ -104,7 +104,7 @@ Please make sure to replace the _<conda_environment_name>_ with an environment n
 conda create --name <conda_environment_name> --file PhenoDist-spec-file.txt
 ```
 
-Activate Conda environment using conda activate command. 
+Activate Conda environment using conda activate command.
 
 This step is required every time before running PhenoDist pipeline.
 
@@ -122,7 +122,7 @@ You can install the PhenoDist from [Github](https://github.com/yenon118/PhenoDis
 git clone https://github.com/yenon118/PhenoDist.git
 ```
 
-Create a "tools" folder within the PhenoDist pipeline clone. 
+Create a "tools" folder within the PhenoDist pipeline clone.
 
 ```
 cd PhenoDist
@@ -132,7 +132,7 @@ cd tools
 
 The Beagle imputation tool can be downloaded from [https://faculty.washington.edu/browning/beagle/beagle.html](https://faculty.washington.edu/browning/beagle/beagle.html) and placed inside the "tools" folder.
 
-The SnpEff functional effect prediction tool can be downloaded from [https://pcingola.github.io/SnpEff/download/](https://pcingola.github.io/SnpEff/download/) and placed in the "tools" folder. 
+The SnpEff functional effect prediction tool can be downloaded from [https://pcingola.github.io/SnpEff/download/](https://pcingola.github.io/SnpEff/download/) and placed in the "tools" folder.
 
 ## Usage
 
@@ -212,7 +212,7 @@ snakemake -j NUMBER_OF_JOBS --configfile CONFIGURATION_FILE --snakefile SNAKEMAK
 Mandatory Positional Argumants:
     NUMBER_OF_JOBS                          - the number of jobs
     CONFIGURATION_FILE                      - a configuration file
-    SNAKEMAKE_FILE                          - the PhenoDist.smk file that sit inside this repository 
+    SNAKEMAKE_FILE                          - the PhenoDist.smk file that sit inside this repository
 ```
 
 ## Examples
@@ -238,6 +238,7 @@ cd /path/to/PhenoDist
 
 snakemake --executor cluster-generic \
 --cluster-generic-submit-cmd "sbatch --account=xulab --time=0-02:00 \
+--nodes=1 --ntasks=1 --cpus-per-task=3 \
 --partition=Lewis,BioCompute,hpc5,General --mem=64G" \
 --jobs 25 --latency-wait 60 \
 --configfile lewis_slurm_inputs.json \
@@ -250,6 +251,7 @@ Snakemake version < 8.0.0.
 cd /path/to/PhenoDist
 
 snakemake --cluster "sbatch --account=xulab --time=0-02:00 \
+--nodes=1 --ntasks=1 --cpus-per-task=3 \
 --partition=Lewis,BioCompute,hpc5,General --mem=64G" \
 --jobs 25 --latency-wait 60 \
 --configfile lewis_slurm_inputs.json \
