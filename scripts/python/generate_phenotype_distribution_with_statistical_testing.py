@@ -75,73 +75,77 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                         if allele_phenotype_dict[allele_combination[0]] and allele_phenotype_dict[allele_combination[1]]:
                             if len(allele_phenotype_dict[allele_combination[0]] + allele_phenotype_dict[allele_combination[1]]) > 2:
                                 # Run shapiro test for normality testing
-                                res_shapiro = scipy.stats.shapiro(allele_phenotype_dict[allele_combination[0]] + allele_phenotype_dict[allele_combination[1]])
-                                if res_shapiro.pvalue < 0.05:
-                                    # Not normally distributed, run Mann-Whitney U rank test
-                                    try:
-                                        res_mannwhitneyu = scipy.stats.mannwhitneyu(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
-                                    except RuntimeWarning as e:
-                                        res_mannwhitneyu = None
-                                    except Exception as e:
-                                        res_mannwhitneyu = None
-                                    if res_mannwhitneyu is not None:
-                                        if res_mannwhitneyu.pvalue < 0.05:
-                                            output_array.append(
-                                                "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                    chromosome,
-                                                    position,
-                                                    allele_combination[0],
-                                                    allele_combination[1],
-                                                    phenotype,
-                                                    phenotype_data_type,
-                                                    'Mann-Whitney U Rank Test',
-                                                    '',
-                                                    '',
-                                                    res_shapiro.statistic,
-                                                    res_shapiro.pvalue,
-                                                    res_mannwhitneyu.statistic,
-                                                    res_mannwhitneyu.pvalue,
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    ''
+                                try:
+                                    res_shapiro = scipy.stats.shapiro(allele_phenotype_dict[allele_combination[0]] + allele_phenotype_dict[allele_combination[1]])
+                                except Exception as e:
+                                    res_shapiro = None
+                                if res_shapiro is not None:
+                                    if res_shapiro.pvalue < 0.05:
+                                        # Not normally distributed, run Mann-Whitney U rank test
+                                        try:
+                                            res_mannwhitneyu = scipy.stats.mannwhitneyu(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
+                                        except RuntimeWarning as e:
+                                            res_mannwhitneyu = None
+                                        except Exception as e:
+                                            res_mannwhitneyu = None
+                                        if res_mannwhitneyu is not None:
+                                            if res_mannwhitneyu.pvalue < 0.05:
+                                                output_array.append(
+                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                        chromosome,
+                                                        position,
+                                                        allele_combination[0],
+                                                        allele_combination[1],
+                                                        phenotype,
+                                                        phenotype_data_type,
+                                                        'Mann-Whitney U Rank Test',
+                                                        '',
+                                                        '',
+                                                        res_shapiro.statistic,
+                                                        res_shapiro.pvalue,
+                                                        res_mannwhitneyu.statistic,
+                                                        res_mannwhitneyu.pvalue,
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        ''
+                                                    )
                                                 )
-                                            )
-                                else:
-                                    # Normally distributed, run t-test
-                                    try:
-                                        res_ttest = scipy.stats.ttest_ind(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
-                                    except RuntimeWarning as e:
-                                        res_ttest = None
-                                    except Exception as e:
-                                        res_ttest = None
-                                    if res_ttest is not None:
-                                        if res_ttest.pvalue < 0.05:
-                                            output_array.append(
-                                                "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                    chromosome,
-                                                    position,
-                                                    allele_combination[0],
-                                                    allele_combination[1],
-                                                    phenotype,
-                                                    phenotype_data_type,
-                                                    'T-test',
-                                                    '',
-                                                    '',
-                                                    res_shapiro.statistic,
-                                                    res_shapiro.pvalue,
-                                                    '',
-                                                    '',
-                                                    res_ttest.statistic,
-                                                    res_ttest.pvalue,
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    ''
+                                    else:
+                                        # Normally distributed, run t-test
+                                        try:
+                                            res_ttest = scipy.stats.ttest_ind(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
+                                        except RuntimeWarning as e:
+                                            res_ttest = None
+                                        except Exception as e:
+                                            res_ttest = None
+                                        if res_ttest is not None:
+                                            if res_ttest.pvalue < 0.05:
+                                                output_array.append(
+                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                        chromosome,
+                                                        position,
+                                                        allele_combination[0],
+                                                        allele_combination[1],
+                                                        phenotype,
+                                                        phenotype_data_type,
+                                                        'T-test',
+                                                        '',
+                                                        '',
+                                                        res_shapiro.statistic,
+                                                        res_shapiro.pvalue,
+                                                        '',
+                                                        '',
+                                                        res_ttest.statistic,
+                                                        res_ttest.pvalue,
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        ''
+                                                    )
                                                 )
-                                            )
                 elif phenotype_data_type == 'string':
                     for allele_combination in allele_combination_list:
                         # Grab all distict phenotype categories
