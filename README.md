@@ -3,7 +3,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The PhenoDist pipeline is built for generating phenotype distributions using allele information and utilizing statistical methods to test for allele significance.
+The PhenoDist pipeline is built for generating phenotype distributions for alleles in variant positions and utilizing statistical methods to test for variant position significance.
 
 ## Requirements
 
