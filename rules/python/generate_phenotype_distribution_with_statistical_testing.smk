@@ -6,7 +6,8 @@ rule generate_phenotype_distribution_with_statistical_testing:
     params:
         accession_key = accession_key,
         phenotype_key = phenotype_key,
-        phenotype = '{phenotype}'
+        phenotype = '{phenotype}',
+        p_value_filtering_threshold = p_value_filtering_threshold
     output:
         out_file = os.path.join(os.path.abspath(output_folder), 'generate_phenotype_distribution_with_statistical_testing', input_sample+'_{chromosome}__{phenotype}.txt')
     log:
@@ -22,6 +23,7 @@ rule generate_phenotype_distribution_with_statistical_testing:
         -ak {params.accession_key} \
         -pk {params.phenotype_key} \
         -r {input.phenotype_file} \
-        -p {params.phenotype} \
+        -ph {params.phenotype} \
+        -pt {params.p_value_filtering_threshold} \
         -o {output.out_file} 2>&1 > {log}
         """

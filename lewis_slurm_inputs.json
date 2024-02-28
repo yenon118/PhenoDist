@@ -21,6 +21,7 @@
 		"HEIGHT",
 		"PODCOLOR"
 	],
+	"p_value_filtering_threshold": 0.05,
 	"output_folder": "/storage/htc/joshilab/yenc/projects/PhenoDist/output/Test_Soy1066/",
 	"memory": 100,
 	"threads": 4

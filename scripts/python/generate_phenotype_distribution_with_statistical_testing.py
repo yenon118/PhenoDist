@@ -3,6 +3,7 @@
 import sys
 import os
 import re
+import math
 import argparse
 import pathlib
 import gzip
@@ -20,7 +21,7 @@ warnings.filterwarnings("error")
 
 
 # Process line in VCF file
-def process_line(header_array, line_array, accession_mapping_dict, accession_key, phenotype_key, phenotype_dict, phenotype, output_array):
+def process_line(header_array, line_array, accession_mapping_dict, accession_key, phenotype_key, phenotype_dict, phenotype, p_value_filtering_threshold, output_array):
     chromosome = line_array[0]
     position = line_array[1]
     reference_allele = line_array[3]
@@ -77,75 +78,102 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                 # Run shapiro test for normality testing
                                 try:
                                     res_shapiro = scipy.stats.shapiro(allele_phenotype_dict[allele_combination[0]] + allele_phenotype_dict[allele_combination[1]])
+                                    if math.isfinite(res_shapiro.statistic):
+                                        res_shapiro_statistic = res_shapiro.statistic
+                                    else:
+                                        res_shapiro_statistic = ''
+                                    if math.isfinite(res_shapiro.pvalue):
+                                        res_shapiro_pvalue = res_shapiro.pvalue
+                                    else:
+                                        res_shapiro_pvalue = ''
                                 except Exception as e:
                                     res_shapiro = None
                                 if res_shapiro is not None:
-                                    if res_shapiro.pvalue < 0.05:
-                                        # Not normally distributed, run Mann-Whitney U rank test
-                                        try:
-                                            res_mannwhitneyu = scipy.stats.mannwhitneyu(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
-                                        except RuntimeWarning as e:
-                                            res_mannwhitneyu = None
-                                        except Exception as e:
-                                            res_mannwhitneyu = None
-                                        if res_mannwhitneyu is not None:
-                                            if res_mannwhitneyu.pvalue < 0.05:
-                                                output_array.append(
-                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                        chromosome,
-                                                        position,
-                                                        allele_combination[0],
-                                                        allele_combination[1],
-                                                        phenotype,
-                                                        phenotype_data_type,
-                                                        'Mann-Whitney U Rank Test',
-                                                        '',
-                                                        '',
-                                                        res_shapiro.statistic,
-                                                        res_shapiro.pvalue,
-                                                        res_mannwhitneyu.statistic,
-                                                        res_mannwhitneyu.pvalue,
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        ''
-                                                    )
-                                                )
-                                    else:
-                                        # Normally distributed, run t-test
-                                        try:
-                                            res_ttest = scipy.stats.ttest_ind(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
-                                        except RuntimeWarning as e:
-                                            res_ttest = None
-                                        except Exception as e:
-                                            res_ttest = None
-                                        if res_ttest is not None:
-                                            if res_ttest.pvalue < 0.05:
-                                                output_array.append(
-                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                        chromosome,
-                                                        position,
-                                                        allele_combination[0],
-                                                        allele_combination[1],
-                                                        phenotype,
-                                                        phenotype_data_type,
-                                                        'T-test',
-                                                        '',
-                                                        '',
-                                                        res_shapiro.statistic,
-                                                        res_shapiro.pvalue,
-                                                        '',
-                                                        '',
-                                                        res_ttest.statistic,
-                                                        res_ttest.pvalue,
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        ''
-                                                    )
-                                                )
+                                    if res_shapiro_pvalue != '':
+                                        if res_shapiro_pvalue < p_value_filtering_threshold:
+                                            # Not normally distributed, run Mann-Whitney U rank test
+                                            try:
+                                                res_mannwhitneyu = scipy.stats.mannwhitneyu(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
+                                                if math.isfinite(res_mannwhitneyu.statistic):
+                                                    res_mannwhitneyu_statistic = res_mannwhitneyu.statistic
+                                                else:
+                                                    res_mannwhitneyu_statistic = ''
+                                                if math.isfinite(res_mannwhitneyu.pvalue):
+                                                    res_mannwhitneyu_pvalue = res_mannwhitneyu.pvalue
+                                                else:
+                                                    res_mannwhitneyu_pvalue = ''
+                                            except RuntimeWarning as e:
+                                                res_mannwhitneyu = None
+                                            except Exception as e:
+                                                res_mannwhitneyu = None
+                                            if res_mannwhitneyu is not None:
+                                                if res_mannwhitneyu_pvalue != '':
+                                                    if res_mannwhitneyu_pvalue < p_value_filtering_threshold:
+                                                        output_array.append(
+                                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                chromosome,
+                                                                position,
+                                                                allele_combination[0],
+                                                                allele_combination[1],
+                                                                phenotype,
+                                                                phenotype_data_type,
+                                                                'Mann-Whitney U Rank Test',
+                                                                '',
+                                                                '',
+                                                                res_shapiro_statistic,
+                                                                res_shapiro_pvalue,
+                                                                res_mannwhitneyu_statistic,
+                                                                res_mannwhitneyu_pvalue,
+                                                                '',
+                                                                '',
+                                                                '',
+                                                                '',
+                                                                '',
+                                                                ''
+                                                            )
+                                                        )
+                                        else:
+                                            # Normally distributed, run t-test
+                                            try:
+                                                res_ttest = scipy.stats.ttest_ind(allele_phenotype_dict[allele_combination[0]], allele_phenotype_dict[allele_combination[1]])
+                                                if math.isfinite(res_ttest.statistic):
+                                                    res_ttest_statistic = res_ttest.statistic
+                                                else:
+                                                    res_ttest_statistic = ''
+                                                if math.isfinite(res_ttest.pvalue):
+                                                    res_ttest_pvalue = res_ttest.pvalue
+                                                else:
+                                                    res_ttest_pvalue = ''
+                                            except RuntimeWarning as e:
+                                                res_ttest = None
+                                            except Exception as e:
+                                                res_ttest = None
+                                            if res_ttest is not None:
+                                                if res_ttest_pvalue != '':
+                                                    if res_ttest_pvalue < p_value_filtering_threshold:
+                                                        output_array.append(
+                                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                chromosome,
+                                                                position,
+                                                                allele_combination[0],
+                                                                allele_combination[1],
+                                                                phenotype,
+                                                                phenotype_data_type,
+                                                                'T-test',
+                                                                '',
+                                                                '',
+                                                                res_shapiro_statistic,
+                                                                res_shapiro_pvalue,
+                                                                '',
+                                                                '',
+                                                                res_ttest_statistic,
+                                                                res_ttest_pvalue,
+                                                                '',
+                                                                '',
+                                                                '',
+                                                                ''
+                                                            )
+                                                        )
                 elif phenotype_data_type == 'string':
                     for allele_combination in allele_combination_list:
                         # Grab all distict phenotype categories
@@ -178,6 +206,14 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                         list(allele_phenotype_category_count_dict[allele_combination[0]].values()),
                                         list(allele_phenotype_category_count_dict[allele_combination[1]].values())
                                     ])
+                                    if math.isfinite(res_chi2_contingency.statistic):
+                                        res_chi2_contingency_statistic = res_chi2_contingency.statistic
+                                    else:
+                                        res_chi2_contingency_statistic = ''
+                                    if math.isfinite(res_chi2_contingency.pvalue):
+                                        res_chi2_contingency_pvalue = res_chi2_contingency.pvalue
+                                    else:
+                                        res_chi2_contingency_pvalue = ''
                                 except Exception as e:
                                     res_chi2_contingency = None
 
@@ -200,73 +236,83 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                                 ]
                                             ]
                                         )
+                                        if math.isfinite(res_fisher_exact.statistic):
+                                            res_fisher_exact_statistic = res_fisher_exact.statistic
+                                        else:
+                                            res_fisher_exact_statistic = ''
+                                        if math.isfinite(res_fisher_exact.pvalue):
+                                            res_fisher_exact_pvalue = res_fisher_exact.pvalue
+                                        else:
+                                            res_fisher_exact_pvalue = ''
                                     except Exception as e:
                                         res_fisher_exact = None
 
                                     if res_fisher_exact is not None:
-                                        if res_fisher_exact.pvalue < 0.05:
-                                            res_fisher_exact_array.append([
-                                                allele_combination[0],
-                                                allele_combination[1],
-                                                phenotype_category_combination[0],
-                                                phenotype_category_combination[1],
-                                                res_fisher_exact.statistic,
-                                                res_fisher_exact.pvalue
-                                            ])
+                                        if res_fisher_exact_pvalue != '':
+                                            if res_fisher_exact_pvalue < p_value_filtering_threshold:
+                                                res_fisher_exact_array.append([
+                                                    allele_combination[0],
+                                                    allele_combination[1],
+                                                    phenotype_category_combination[0],
+                                                    phenotype_category_combination[1],
+                                                    res_fisher_exact_statistic,
+                                                    res_fisher_exact_pvalue
+                                                ])
 
                                 # Prepare output
                                 if res_fisher_exact_array:
                                     if res_chi2_contingency is not None:
-                                        if res_chi2_contingency.pvalue < 0.05:
-                                            for i in range(len(res_fisher_exact_array)):
-                                                output_array.append(
-                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                        chromosome,
-                                                        position,
-                                                        res_fisher_exact_array[i][0],
-                                                        res_fisher_exact_array[i][1],
-                                                        phenotype,
-                                                        phenotype_data_type,
-                                                        'Chi-square Test; Fisher Exact Test',
-                                                        res_fisher_exact_array[i][2],
-                                                        res_fisher_exact_array[i][3],
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        res_chi2_contingency.statistic,
-                                                        res_chi2_contingency.pvalue,
-                                                        res_fisher_exact_array[i][4],
-                                                        res_fisher_exact_array[i][5]
+                                        if res_chi2_contingency_pvalue != '':
+                                            if res_chi2_contingency_pvalue < p_value_filtering_threshold:
+                                                for i in range(len(res_fisher_exact_array)):
+                                                    output_array.append(
+                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                            chromosome,
+                                                            position,
+                                                            res_fisher_exact_array[i][0],
+                                                            res_fisher_exact_array[i][1],
+                                                            phenotype,
+                                                            phenotype_data_type,
+                                                            'Chi-square Test; Fisher Exact Test',
+                                                            res_fisher_exact_array[i][2],
+                                                            res_fisher_exact_array[i][3],
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            res_chi2_contingency_statistic,
+                                                            res_chi2_contingency_pvalue,
+                                                            res_fisher_exact_array[i][4],
+                                                            res_fisher_exact_array[i][5]
+                                                        )
                                                     )
-                                                )
-                                        else:
-                                            for i in range(len(res_fisher_exact_array)):
-                                                output_array.append(
-                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                        chromosome,
-                                                        position,
-                                                        res_fisher_exact_array[i][0],
-                                                        res_fisher_exact_array[i][1],
-                                                        phenotype,
-                                                        phenotype_data_type,
-                                                        'Fisher Exact Test',
-                                                        res_fisher_exact_array[i][2],
-                                                        res_fisher_exact_array[i][3],
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        res_fisher_exact_array[i][4],
-                                                        res_fisher_exact_array[i][5]
+                                            else:
+                                                for i in range(len(res_fisher_exact_array)):
+                                                    output_array.append(
+                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                            chromosome,
+                                                            position,
+                                                            res_fisher_exact_array[i][0],
+                                                            res_fisher_exact_array[i][1],
+                                                            phenotype,
+                                                            phenotype_data_type,
+                                                            'Fisher Exact Test',
+                                                            res_fisher_exact_array[i][2],
+                                                            res_fisher_exact_array[i][3],
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            '',
+                                                            res_fisher_exact_array[i][4],
+                                                            res_fisher_exact_array[i][5]
+                                                        )
                                                     )
-                                                )
                                     else:
                                         for i in range(len(res_fisher_exact_array)):
                                             output_array.append(
@@ -294,30 +340,31 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                             )
                                 else:
                                     if res_chi2_contingency is not None:
-                                        if res_chi2_contingency.pvalue < 0.05:
-                                            output_array.append(
-                                                "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                    chromosome,
-                                                    position,
-                                                    allele_combination[0],
-                                                    allele_combination[1],
-                                                    phenotype,
-                                                    phenotype_data_type,
-                                                    'Chi-square Test',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    '',
-                                                    res_chi2_contingency.statistic,
-                                                    res_chi2_contingency.pvalue,
-                                                    '',
-                                                    ''
+                                        if res_chi2_contingency_pvalue != '':
+                                            if res_chi2_contingency_pvalue < p_value_filtering_threshold:
+                                                output_array.append(
+                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                        chromosome,
+                                                        position,
+                                                        allele_combination[0],
+                                                        allele_combination[1],
+                                                        phenotype,
+                                                        phenotype_data_type,
+                                                        'Chi-square Test',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        res_chi2_contingency_statistic,
+                                                        res_chi2_contingency_pvalue,
+                                                        '',
+                                                        ''
+                                                    )
                                                 )
-                                            )
 
 
 def main(args):
@@ -330,6 +377,7 @@ def main(args):
     phenotype_key = args.phenotype_key
     phenotype_file_path = args.phenotype_file
     phenotype = args.phenotype
+    p_value_filtering_threshold = args.p_value_filtering_threshold
     output_file_path = args.output_file
 
     #######################################################################
@@ -490,6 +538,7 @@ def main(args):
                     phenotype_key,
                     phenotype_dict,
                     phenotype,
+                    p_value_filtering_threshold,
                     output_array
                 )
                 # Check and write data
@@ -513,6 +562,7 @@ def main(args):
                     phenotype_key,
                     phenotype_dict,
                     phenotype,
+                    p_value_filtering_threshold,
                     output_array
                 )
                 # Check and write data
@@ -539,7 +589,8 @@ if __name__ == "__main__":
     parser.add_argument('-ak', '--accession_key', help='Accession mapping file key column for accessions in VCF file', type=str, required=True)
     parser.add_argument('-pk', '--phenotype_key', help='Accession mapping file key column for accessions in phenotype file', type=str, required=True)
     parser.add_argument('-r', '--phenotype_file', help='Phenotype file', type=pathlib.Path, required=True)
-    parser.add_argument('-p', '--phenotype', help='Phenotype', type=str, required=True)
+    parser.add_argument('-ph', '--phenotype', help='Phenotype', type=str, required=True)
+    parser.add_argument('-pt', '--p_value_filtering_threshold', help='P-value filtering threshold', type=float, default=0.05)
     parser.add_argument('-o', '--output_file', help='Output file', type=pathlib.Path, required=True)
 
     args = parser.parse_args()
