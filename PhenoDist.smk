@@ -47,7 +47,8 @@ rule all:
 		expand(os.path.join(os.path.abspath(output_folder), 'snpEff_input_file', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
 		expand(os.path.join(os.path.abspath(output_folder), 'grep_effects', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
 		expand(os.path.join(os.path.abspath(output_folder), 'generate_phenotype_distribution_with_statistical_testing', input_sample+'_{chromosome}__{phenotype}.txt'), chromosome=chromosomes, phenotype=phenotypes),
-		expand(os.path.join(os.path.abspath(output_folder), 'combine_phenotype_distribution_statistical_testing_results', '{project_name}_{{chromosome}}.txt'.format(project_name=project_name)), chromosome=chromosomes)
+		expand(os.path.join(os.path.abspath(output_folder), 'combine_phenotype_distribution_statistical_results_by_chromosomes', '{project_name}_{{chromosome}}.txt'.format(project_name=project_name)), chromosome=chromosomes),
+		expand(os.path.join(os.path.abspath(output_folder), 'combine_phenotype_distribution_statistical_results_by_phenotypes', '{project_name}_{{phenotype}}.txt'.format(project_name=project_name)), phenotype=phenotypes)
 
 
 include: './rules/java/beagle_impute_input_file.smk'
@@ -56,4 +57,5 @@ include: './rules/java/snpEff_input_file.smk'
 include: './rules/bash/grep_input_effects.smk'
 
 include: './rules/python/generate_phenotype_distribution_with_statistical_testing.smk'
-include: './rules/python/combine_phenotype_distribution_statistical_testing_results.smk'
+include: './rules/python/combine_phenotype_distribution_statistical_results_by_chromosomes.smk'
+include: './rules/python/combine_phenotype_distribution_statistical_results_by_phenotypes.smk'
