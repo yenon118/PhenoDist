@@ -106,6 +106,8 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                                 res_mannwhitneyu = None
                                             except Exception as e:
                                                 res_mannwhitneyu = None
+
+                                            # Prepare output for Mann-Whitney U rank test
                                             if res_mannwhitneyu is not None:
                                                 if res_mannwhitneyu_pvalue != '':
                                                     if res_mannwhitneyu_pvalue < p_value_filtering_threshold:
@@ -148,6 +150,8 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                                 res_ttest = None
                                             except Exception as e:
                                                 res_ttest = None
+
+                                            # Prepare output for t-test
                                             if res_ttest is not None:
                                                 if res_ttest_pvalue != '':
                                                     if res_ttest_pvalue < p_value_filtering_threshold:
@@ -217,6 +221,34 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                 except Exception as e:
                                     res_chi2_contingency = None
 
+                                # Prepare output for chi-square test
+                                if res_chi2_contingency is not None:
+                                    if res_chi2_contingency_pvalue != '':
+                                        if res_chi2_contingency_pvalue < p_value_filtering_threshold:
+                                                output_array.append(
+                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                        chromosome,
+                                                        position,
+                                                        allele_combination[0],
+                                                        allele_combination[1],
+                                                        phenotype,
+                                                        phenotype_data_type,
+                                                        'Chi-square Test',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        '',
+                                                        res_chi2_contingency_statistic,
+                                                        res_chi2_contingency_pvalue,
+                                                        '',
+                                                        ''
+                                                    )
+                                                )
+
                                 # Generate phenotype category combinations and/or permutations
                                 phenotype_category_combination_list = list(combinations(unique_phenotype_category_array, 2))
 
@@ -259,113 +291,9 @@ def process_line(header_array, line_array, accession_mapping_dict, accession_key
                                                     res_fisher_exact_pvalue
                                                 ])
 
-                                # Prepare output
-                                if res_chi2_contingency is not None:
-                                    if res_chi2_contingency_pvalue != '':
-                                        if res_chi2_contingency_pvalue < p_value_filtering_threshold:
-                                            if res_fisher_exact_array:
-                                                for i in range(len(res_fisher_exact_array)):
-                                                    output_array.append(
-                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                            chromosome,
-                                                            position,
-                                                            res_fisher_exact_array[i][0],
-                                                            res_fisher_exact_array[i][1],
-                                                            phenotype,
-                                                            phenotype_data_type,
-                                                            'Chi-square Test; Fisher Exact Test',
-                                                            res_fisher_exact_array[i][2],
-                                                            res_fisher_exact_array[i][3],
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            res_chi2_contingency_statistic,
-                                                            res_chi2_contingency_pvalue,
-                                                            res_fisher_exact_array[i][4],
-                                                            res_fisher_exact_array[i][5]
-                                                        )
-                                                    )
-                                            else:
-                                                output_array.append(
-                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                        chromosome,
-                                                        position,
-                                                        allele_combination[0],
-                                                        allele_combination[1],
-                                                        phenotype,
-                                                        phenotype_data_type,
-                                                        'Chi-square Test',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        res_chi2_contingency_statistic,
-                                                        res_chi2_contingency_pvalue,
-                                                        '',
-                                                        ''
-                                                    )
-                                                )
-                                        else:
-                                            if res_fisher_exact_array:
-                                                for i in range(len(res_fisher_exact_array)):
-                                                    output_array.append(
-                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                            chromosome,
-                                                            position,
-                                                            res_fisher_exact_array[i][0],
-                                                            res_fisher_exact_array[i][1],
-                                                            phenotype,
-                                                            phenotype_data_type,
-                                                            'Fisher Exact Test',
-                                                            res_fisher_exact_array[i][2],
-                                                            res_fisher_exact_array[i][3],
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            '',
-                                                            res_fisher_exact_array[i][4],
-                                                            res_fisher_exact_array[i][5]
-                                                        )
-                                                    )
-                                    else:
-                                        if res_fisher_exact_array:
-                                            for i in range(len(res_fisher_exact_array)):
-                                                output_array.append(
-                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                        chromosome,
-                                                        position,
-                                                        res_fisher_exact_array[i][0],
-                                                        res_fisher_exact_array[i][1],
-                                                        phenotype,
-                                                        phenotype_data_type,
-                                                        'Fisher Exact Test',
-                                                        res_fisher_exact_array[i][2],
-                                                        res_fisher_exact_array[i][3],
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        '',
-                                                        res_fisher_exact_array[i][4],
-                                                        res_fisher_exact_array[i][5]
-                                                    )
-                                                )
-                                else:
-                                    if res_fisher_exact_array:
+                                # Prepare output for fisher exact test
+                                if res_fisher_exact_array:
+                                    if len(res_fisher_exact_array) > 0:
                                         for i in range(len(res_fisher_exact_array)):
                                             output_array.append(
                                                 "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
