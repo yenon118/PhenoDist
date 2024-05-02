@@ -31,15 +31,15 @@ def main(args):
         if not output_file_path.parent.exists():
             sys.exit(1)
 
-
     #######################################################################
     # Write output file header
     #######################################################################
     with open(output_file_path, 'w') as writer:
         writer.write(
-            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                 'Chromosome',
                 'Position',
+                'Gene',
                 'Allele_1',
                 'Allele_2',
                 'Phenotype',
@@ -51,15 +51,21 @@ def main(args):
                 'Shapiro_Test_P_Value',
                 'Mann_Whitney_U_Rank_Test_Statistics',
                 'Mann_Whitney_U_Rank_Test_P_Value',
+                'Mann_Whitney_U_Rank_Test_Accession_Count_1',
+                'Mann_Whitney_U_Rank_Test_Accession_Count_2',
                 'T_Test_Statistics',
                 'T_Test_P_Value',
+                'T_Test_Accession_Count_1',
+                'T_Test_Accession_Count_2',
                 'Chi_Square_Test_Statistics',
                 'Chi_Square_Test_P_Value',
+                'Chi_Square_Test_Accession_Count_1',
+                'Chi_Square_Test_Accession_Count_2',
                 'Fisher_Exact_Test_Statistics',
-                'Fisher_Exact_Test_P_Value'
+                'Fisher_Exact_Test_P_Value',
+                'Fisher_Exact_Test_Accession_Count'
             )
         )
-
 
     #######################################################################
     # Read input file
@@ -95,7 +101,6 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_file', help='Output file', type=pathlib.Path, required=True)
 
     args = parser.parse_args()
-
 
     #######################################################################
     # Call main function

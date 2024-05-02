@@ -1,28 +1,31 @@
 {
-	"project_name": "Test_Soy1066",
-	"workflow_path": "/storage/htc/joshilab/yenc/projects/PhenoDist",
-	"input_files": [
-		"/storage/htc/joshilab/yenc/projects/PhenoDist/data/test_Soy1066/unimpute_data/test_Soy1066_Chr01.vcf.gz",
-		"/storage/htc/joshilab/yenc/projects/PhenoDist/data/test_Soy1066/unimpute_data/test_Soy1066_Chr02.vcf.gz",
-		"/storage/htc/joshilab/yenc/projects/PhenoDist/data/test_Soy1066/unimpute_data/test_Soy1066_Chr03.vcf.gz"
-	],
-	"chromosomes": [
-		"Chr01",
-		"Chr02",
-		"Chr03"
-	],
-	"beagle_window": 40,
-	"genome_version": "Wm82.a2.v1",
-	"accession_mapping_file": "/storage/htc/joshilab/yenc/projects/PhenoDist/data/act_Soy2939_Accession_Mapping.tsv",
-	"accession_key": "Accession",
-	"phenotype_key": "GRIN_Accession",
-	"phenotype_file": "/storage/htc/joshilab/yenc/projects/PhenoDist/data/act_Soy2939_Phenotype_Data.tsv",
-	"phenotypes": [
-		"HEIGHT",
-		"PODCOLOR"
-	],
-	"p_value_filtering_threshold": 0.05,
-	"output_folder": "/storage/htc/joshilab/yenc/projects/PhenoDist/output/Test_Soy1066/",
-	"memory": 100,
-	"threads": 4
+  "project_name": "Test_Soy1066",
+  "workflow_path": "/mnt/pixstor/joshitr-lab/chanye/projects/PhenoDist",
+  "input_files": [
+    "/mnt/pixstor/joshitr-lab/chanye/projects/PhenoDist/data/test_Soy1066/unimpute_data/test_Soy1066_Chr01.vcf.gz",
+    "/mnt/pixstor/joshitr-lab/chanye/projects/PhenoDist/data/test_Soy1066/unimpute_data/test_Soy1066_Chr02.vcf.gz",
+    "/mnt/pixstor/joshitr-lab/chanye/projects/PhenoDist/data/test_Soy1066/unimpute_data/test_Soy1066_Chr03.vcf.gz"
+  ],
+  "chromosomes": [
+    "Chr01",
+    "Chr02",
+    "Chr03"
+  ],
+  "beagle_window": 40,
+  "genome_version": "Wm82.a2.v1",
+  "accession_mapping_file": "/mnt/pixstor/joshitr-lab/chanye/projects/PhenoDist/data/act_Soy2939_Accession_Mapping.tsv",
+  "accession_key": "Accession",
+  "phenotype_key": "GRIN_Accession",
+  "phenotype_file": "/mnt/pixstor/joshitr-lab/chanye/projects/PhenoDist/data/act_Soy2939_Phenotype_Data.tsv",
+  "phenotypes": [
+    "HEIGHT",
+    "PODCOLOR"
+  ],
+  "p_value_filtering_threshold": 0.05,
+  "gff_file": "/mnt/pixstor/joshitr-lab/chanye/datasets/soybean_reference_genome/Wm82.a2.v1.only_genes.gff",
+  "gff_category": "gene",
+  "gff_key": "Name=",
+  "output_folder": "/mnt/pixstor/joshitr-lab/chanye/projects/PhenoDist/output/Test_Soy1066/",
+  "memory": 100,
+  "threads": 4
 }
