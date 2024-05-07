@@ -84,28 +84,11 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                         test_method = ''
                         phenotype_category_1 = ''
                         phenotype_category_2 = ''
-                        res_shapiro = None
-                        res_shapiro_statistic = ''
-                        res_shapiro_pvalue = ''
-                        res_mannwhitneyu = None
-                        res_mannwhitneyu_statistic = ''
-                        res_mannwhitneyu_pvalue = ''
-                        mannwhitneyu_accession_count_1 = ''
-                        mannwhitneyu_accession_count_2 = ''
-                        res_ttest = None
-                        res_ttest_statistic = ''
-                        res_ttest_pvalue = ''
-                        ttest_accession_count_1 = ''
-                        ttest_accession_count_2 = ''
-                        res_chi2_contingency = None
-                        res_chi2_contingency_statistic = ''
-                        res_chi2_contingency_pvalue = ''
-                        chi2_contingency_accession_count_1 = ''
-                        chi2_contingency_accession_count_2 = ''
-                        res_fisher_exact_array = []
-                        res_fisher_exact_statistic = ''
-                        res_fisher_exact_pvalue = ''
-                        fisher_exact_accession_count = ''
+                        accession_count = ''
+                        normality_statistic = ''
+                        normality_pvalue = ''
+                        test_statistic = ''
+                        test_pvalue = ''
 
                         # Make sure data is valid for shapiro normality testing
                         if allele_phenotype_dict[allele_combination[0]] and allele_phenotype_dict[allele_combination[1]]:
@@ -121,11 +104,14 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                         res_shapiro_pvalue = res_shapiro.pvalue
                                     else:
                                         res_shapiro_pvalue = ''
+                                    # Get normality statistic and p-value
+                                    normality_statistic = res_shapiro_statistic
+                                    normality_pvalue = res_shapiro_pvalue
                                 except Exception as e:
                                     res_shapiro = None
                                 if res_shapiro is not None:
-                                    if res_shapiro_pvalue != '':
-                                        if float(res_shapiro_pvalue) < float(p_value_filtering_threshold):
+                                    if normality_pvalue != '':
+                                        if float(normality_pvalue) < float(p_value_filtering_threshold):
                                             # Not normally distributed, run Mann-Whitney U rank test
                                             try:
                                                 res_mannwhitneyu = scipy.stats.mannwhitneyu(
@@ -143,21 +129,25 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                                 # Specify test method
                                                 test_method = 'Mann-Whitney U Rank Test'
                                                 # Get accession counts
-                                                mannwhitneyu_accession_count_1 = len(allele_phenotype_dict[allele_combination[0]])
-                                                mannwhitneyu_accession_count_2 = len(allele_phenotype_dict[allele_combination[1]])
+                                                accession_count = str(
+                                                    len(allele_phenotype_dict[allele_combination[0]])) + ',' + str(
+                                                    len(allele_phenotype_dict[allele_combination[1]]))
+                                                # Get test statistic and p-value
+                                                test_statistic = res_mannwhitneyu_statistic
+                                                test_pvalue = res_mannwhitneyu_pvalue
                                             except RuntimeWarning as e:
                                                 res_mannwhitneyu = None
                                             except Exception as e:
                                                 res_mannwhitneyu = None
 
-                                            if gene_array:
-                                                if len(gene_array) > 0:
-                                                    for gene in gene_array:
-                                                        if res_mannwhitneyu:
-                                                            if res_mannwhitneyu_pvalue != '':
-                                                                if float(res_mannwhitneyu_pvalue) < float(p_value_filtering_threshold):
+                                            if res_mannwhitneyu:
+                                                if test_pvalue != '':
+                                                    if float(test_pvalue) < float(p_value_filtering_threshold):
+                                                        if gene_array:
+                                                            if len(gene_array) > 0:
+                                                                for gene in gene_array:
                                                                     output_array.append(
-                                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                                                                             chromosome,
                                                                             position,
                                                                             gene,
@@ -168,23 +158,11 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                                                             test_method,
                                                                             phenotype_category_1,
                                                                             phenotype_category_2,
-                                                                            res_shapiro_statistic,
-                                                                            res_shapiro_pvalue,
-                                                                            res_mannwhitneyu_statistic,
-                                                                            res_mannwhitneyu_pvalue,
-                                                                            mannwhitneyu_accession_count_1,
-                                                                            mannwhitneyu_accession_count_2,
-                                                                            res_ttest_statistic,
-                                                                            res_ttest_pvalue,
-                                                                            ttest_accession_count_1,
-                                                                            ttest_accession_count_2,
-                                                                            res_chi2_contingency_statistic,
-                                                                            res_chi2_contingency_pvalue,
-                                                                            chi2_contingency_accession_count_1,
-                                                                            chi2_contingency_accession_count_2,
-                                                                            res_fisher_exact_statistic,
-                                                                            res_fisher_exact_pvalue,
-                                                                            fisher_exact_accession_count
+                                                                            accession_count,
+                                                                            normality_statistic,
+                                                                            normality_pvalue,
+                                                                            test_statistic,
+                                                                            test_pvalue
                                                                         )
                                                                     )
                                         else:
@@ -205,21 +183,25 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                                 # Specify test method
                                                 test_method = 'T-test'
                                                 # Get accession counts
-                                                ttest_accession_count_1 = len(allele_phenotype_dict[allele_combination[0]])
-                                                ttest_accession_count_2 = len(allele_phenotype_dict[allele_combination[1]])
+                                                accession_count = str(
+                                                    len(allele_phenotype_dict[allele_combination[0]])) + ',' + str(
+                                                    len(allele_phenotype_dict[allele_combination[1]]))
+                                                # Get test statistic and p-value
+                                                test_statistic = res_ttest_statistic
+                                                test_pvalue = res_ttest_pvalue
                                             except RuntimeWarning as e:
                                                 res_ttest = None
                                             except Exception as e:
                                                 res_ttest = None
 
-                                            if gene_array:
-                                                if len(gene_array) > 0:
-                                                    for gene in gene_array:
-                                                        if res_ttest:
-                                                            if res_ttest_pvalue != '':
-                                                                if float(res_ttest_pvalue) < float(p_value_filtering_threshold):
+                                            if res_ttest:
+                                                if test_pvalue != '':
+                                                    if float(test_pvalue) < float(p_value_filtering_threshold):
+                                                        if gene_array:
+                                                            if len(gene_array) > 0:
+                                                                for gene in gene_array:
                                                                     output_array.append(
-                                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                                                                             chromosome,
                                                                             position,
                                                                             gene,
@@ -230,23 +212,11 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                                                             test_method,
                                                                             phenotype_category_1,
                                                                             phenotype_category_2,
-                                                                            res_shapiro_statistic,
-                                                                            res_shapiro_pvalue,
-                                                                            res_mannwhitneyu_statistic,
-                                                                            res_mannwhitneyu_pvalue,
-                                                                            mannwhitneyu_accession_count_1,
-                                                                            mannwhitneyu_accession_count_2,
-                                                                            res_ttest_statistic,
-                                                                            res_ttest_pvalue,
-                                                                            ttest_accession_count_1,
-                                                                            ttest_accession_count_2,
-                                                                            res_chi2_contingency_statistic,
-                                                                            res_chi2_contingency_pvalue,
-                                                                            chi2_contingency_accession_count_1,
-                                                                            chi2_contingency_accession_count_2,
-                                                                            res_fisher_exact_statistic,
-                                                                            res_fisher_exact_pvalue,
-                                                                            fisher_exact_accession_count
+                                                                            accession_count,
+                                                                            normality_statistic,
+                                                                            normality_pvalue,
+                                                                            test_statistic,
+                                                                            test_pvalue
                                                                         )
                                                                     )
                 elif phenotype_data_type == 'string':
@@ -257,28 +227,11 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                         test_method = ''
                         phenotype_category_1 = ''
                         phenotype_category_2 = ''
-                        res_shapiro = None
-                        res_shapiro_statistic = ''
-                        res_shapiro_pvalue = ''
-                        res_mannwhitneyu = None
-                        res_mannwhitneyu_statistic = ''
-                        res_mannwhitneyu_pvalue = ''
-                        mannwhitneyu_accession_count_1 = ''
-                        mannwhitneyu_accession_count_2 = ''
-                        res_ttest = None
-                        res_ttest_statistic = ''
-                        res_ttest_pvalue = ''
-                        ttest_accession_count_1 = ''
-                        ttest_accession_count_2 = ''
-                        res_chi2_contingency = None
-                        res_chi2_contingency_statistic = ''
-                        res_chi2_contingency_pvalue = ''
-                        chi2_contingency_accession_count_1 = ''
-                        chi2_contingency_accession_count_2 = ''
-                        res_fisher_exact_array = []
-                        res_fisher_exact_statistic = ''
-                        res_fisher_exact_pvalue = ''
-                        fisher_exact_accession_count = ''
+                        accession_count = ''
+                        normality_statistic = ''
+                        normality_pvalue = ''
+                        test_statistic = ''
+                        test_pvalue = ''
 
                         # Grab all distinct phenotype categories
                         unique_phenotype_category_array = []
@@ -321,19 +274,21 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                     # Specify test method
                                     test_method = 'Chi-square Test'
                                     # Get accession counts
-                                    chi2_contingency_accession_count_1 = ','.join([str(i) for i in list(allele_phenotype_category_count_dict[allele_combination[0]].values())])
-                                    chi2_contingency_accession_count_2 = ','.join([str(i) for i in list(allele_phenotype_category_count_dict[allele_combination[1]].values())])
+                                    accession_count = ','.join([str(i) for i in list(allele_phenotype_category_count_dict[allele_combination[0]].values())] + [str(i) for i in list(allele_phenotype_category_count_dict[allele_combination[1]].values())])
+                                    # Get test statistic and p-value
+                                    test_statistic = res_chi2_contingency_statistic
+                                    test_pvalue = res_chi2_contingency_pvalue
                                 except Exception as e:
                                     res_chi2_contingency = None
 
-                                if gene_array:
-                                    if len(gene_array) > 0:
-                                        for gene in gene_array:
-                                            if res_chi2_contingency:
-                                                if res_chi2_contingency_pvalue != '':
-                                                    if float(res_chi2_contingency_pvalue) < float(p_value_filtering_threshold):
+                                if res_chi2_contingency:
+                                    if test_pvalue != '':
+                                        if float(test_pvalue) < float(p_value_filtering_threshold):
+                                            if gene_array:
+                                                if len(gene_array) > 0:
+                                                    for gene in gene_array:
                                                         output_array.append(
-                                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                                                                 chromosome,
                                                                 position,
                                                                 gene,
@@ -344,23 +299,11 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                                                 test_method,
                                                                 phenotype_category_1,
                                                                 phenotype_category_2,
-                                                                res_shapiro_statistic,
-                                                                res_shapiro_pvalue,
-                                                                res_mannwhitneyu_statistic,
-                                                                res_mannwhitneyu_pvalue,
-                                                                mannwhitneyu_accession_count_1,
-                                                                mannwhitneyu_accession_count_2,
-                                                                res_ttest_statistic,
-                                                                res_ttest_pvalue,
-                                                                ttest_accession_count_1,
-                                                                ttest_accession_count_2,
-                                                                res_chi2_contingency_statistic,
-                                                                res_chi2_contingency_pvalue,
-                                                                chi2_contingency_accession_count_1,
-                                                                chi2_contingency_accession_count_2,
-                                                                res_fisher_exact_statistic,
-                                                                res_fisher_exact_pvalue,
-                                                                fisher_exact_accession_count
+                                                                accession_count,
+                                                                normality_statistic,
+                                                                normality_pvalue,
+                                                                test_statistic,
+                                                                test_pvalue
                                                             )
                                                         )
 
@@ -390,71 +333,49 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                             res_fisher_exact_pvalue = res_fisher_exact.pvalue
                                         else:
                                             res_fisher_exact_pvalue = ''
+                                        # Specify test method
+                                        test_method = 'Fisher Exact Test'
+                                        # Get accession counts
+                                        accession_count = str(
+                                            allele_phenotype_category_count_dict[allele_combination[0]][
+                                                phenotype_category_combination[0]]) + "," + str(
+                                            allele_phenotype_category_count_dict[allele_combination[0]][
+                                                phenotype_category_combination[1]]) + "," + str(
+                                            allele_phenotype_category_count_dict[allele_combination[1]][
+                                                phenotype_category_combination[0]]) + "," + str(
+                                            allele_phenotype_category_count_dict[allele_combination[1]][
+                                                phenotype_category_combination[1]])
+                                        # Get test statistic and p-value
+                                        test_statistic = res_fisher_exact_statistic
+                                        test_pvalue = res_fisher_exact_pvalue
                                     except Exception as e:
                                         res_fisher_exact = None
 
                                     if res_fisher_exact is not None:
-                                        if res_fisher_exact_pvalue != '':
-                                            if float(res_fisher_exact_pvalue) < float(p_value_filtering_threshold):
-                                                res_fisher_exact_array.append({
-                                                    'Allele_1': allele_combination[0],
-                                                    'Allele_2': allele_combination[1],
-                                                    'Test_Method': 'Fisher Exact Test',
-                                                    'Phenotype_Category_1': phenotype_category_combination[0],
-                                                    'Phenotype_Category_2': phenotype_category_combination[1],
-                                                    'Chi_Square_Test_Statistics': '',
-                                                    'Chi_Square_Test_P_Value': '',
-                                                    'Chi_Square_Test_Accession_Count_1': '',
-                                                    'Chi_Square_Test_Accession_Count_2': '',
-                                                    'Fisher_Exact_Test_Statistics': res_fisher_exact_statistic,
-                                                    'Fisher_Exact_Test_P_Value': res_fisher_exact_pvalue,
-                                                    'Fisher_Exact_Test_Accession_Count': str(allele_phenotype_category_count_dict[allele_combination[0]][
-                                                            phenotype_category_combination[0]]) + "," + str(
-                                                        allele_phenotype_category_count_dict[allele_combination[0]][
-                                                            phenotype_category_combination[1]]) + "," + str(
-                                                        allele_phenotype_category_count_dict[allele_combination[1]][
-                                                            phenotype_category_combination[0]]) + "," + str(
-                                                        allele_phenotype_category_count_dict[allele_combination[1]][
-                                                            phenotype_category_combination[1]])
-                                                })
-
-                                if gene_array:
-                                    if len(gene_array) > 0:
-                                        for gene in gene_array:
-                                            if res_fisher_exact_array:
-                                                if len(res_fisher_exact_array) > 0:
-                                                    for i in range(len(res_fisher_exact_array)):
-                                                        output_array.append(
-                                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                                chromosome,
-                                                                position,
-                                                                gene,
-                                                                res_fisher_exact_array[i]['Allele_1'],
-                                                                res_fisher_exact_array[i]['Allele_2'],
-                                                                phenotype,
-                                                                phenotype_data_type,
-                                                                res_fisher_exact_array[i]['Test_Method'],
-                                                                res_fisher_exact_array[i]['Phenotype_Category_1'],
-                                                                res_fisher_exact_array[i]['Phenotype_Category_2'],
-                                                                res_shapiro_statistic,
-                                                                res_shapiro_pvalue,
-                                                                res_mannwhitneyu_statistic,
-                                                                res_mannwhitneyu_pvalue,
-                                                                mannwhitneyu_accession_count_1,
-                                                                mannwhitneyu_accession_count_2,
-                                                                res_ttest_statistic,
-                                                                res_ttest_pvalue,
-                                                                ttest_accession_count_1,
-                                                                ttest_accession_count_2,
-                                                                res_fisher_exact_array[i]['Chi_Square_Test_Statistics'],
-                                                                res_fisher_exact_array[i]['Chi_Square_Test_P_Value'],
-                                                                res_fisher_exact_array[i]['Chi_Square_Test_Accession_Count_1'],
-                                                                res_fisher_exact_array[i]['Chi_Square_Test_Accession_Count_2'],
-                                                                res_fisher_exact_array[i]['Fisher_Exact_Test_Statistics'],
-                                                                res_fisher_exact_array[i]['Fisher_Exact_Test_P_Value'],
-                                                                res_fisher_exact_array[i]['Fisher_Exact_Test_Accession_Count']
+                                        if test_pvalue != '':
+                                            if float(test_pvalue) < float(p_value_filtering_threshold):
+                                                if gene_array:
+                                                    if len(gene_array) > 0:
+                                                        for gene in gene_array:
+                                                            output_array.append(
+                                                                "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                    chromosome,
+                                                                    position,
+                                                                    gene,
+                                                                    allele_combination_1,
+                                                                    allele_combination_2,
+                                                                    phenotype,
+                                                                    phenotype_data_type,
+                                                                    test_method,
+                                                                    phenotype_category_combination[0],
+                                                                    phenotype_category_combination[1],
+                                                                    accession_count,
+                                                                    normality_statistic,
+                                                                    normality_pvalue,
+                                                                    test_statistic,
+                                                                    test_pvalue
+                                                                )
                                                             )
-                                                        )
 
 
 def main(args):
@@ -603,7 +524,8 @@ def main(args):
             if is_float_flag:
                 phenotype_dict[pheno]['DataType'] = 'float'
                 for acc in phenotype_dict[pheno]['Data'].keys():
-                    phenotype_dict[pheno]['Data'][acc] = [float(element) for element in phenotype_dict[pheno]['Data'][acc]]
+                    phenotype_dict[pheno]['Data'][acc] = [float(element) for element in
+                                                          phenotype_dict[pheno]['Data'][acc]]
             else:
                 phenotype_dict[pheno]['DataType'] = 'string'
 
@@ -612,7 +534,7 @@ def main(args):
     #######################################################################
     with open(output_file_path, 'w') as writer:
         writer.write(
-            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                 'Chromosome',
                 'Position',
                 'Gene',
@@ -623,23 +545,11 @@ def main(args):
                 'Test_Method',
                 'Phenotype_Category_1',
                 'Phenotype_Category_2',
-                'Shapiro_Test_Statistics',
-                'Shapiro_Test_P_Value',
-                'Mann_Whitney_U_Rank_Test_Statistics',
-                'Mann_Whitney_U_Rank_Test_P_Value',
-                'Mann_Whitney_U_Rank_Test_Accession_Count_1',
-                'Mann_Whitney_U_Rank_Test_Accession_Count_2',
-                'T_Test_Statistics',
-                'T_Test_P_Value',
-                'T_Test_Accession_Count_1',
-                'T_Test_Accession_Count_2',
-                'Chi_Square_Test_Statistics',
-                'Chi_Square_Test_P_Value',
-                'Chi_Square_Test_Accession_Count_1',
-                'Chi_Square_Test_Accession_Count_2',
-                'Fisher_Exact_Test_Statistics',
-                'Fisher_Exact_Test_P_Value',
-                'Fisher_Exact_Test_Accession_Count'
+                'Accession_Count',
+                'Normality_Statistic',
+                'Normality_P_Value',
+                'Test_Statistic',
+                'Test_P_Value'
             )
         )
 

@@ -36,7 +36,7 @@ def main(args):
     #######################################################################
     with open(output_file_path, 'w') as writer:
         writer.write(
-            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                 'Chromosome',
                 'Position',
                 'Gene',
@@ -47,23 +47,11 @@ def main(args):
                 'Test_Method',
                 'Phenotype_Category_1',
                 'Phenotype_Category_2',
-                'Shapiro_Test_Statistics',
-                'Shapiro_Test_P_Value',
-                'Mann_Whitney_U_Rank_Test_Statistics',
-                'Mann_Whitney_U_Rank_Test_P_Value',
-                'Mann_Whitney_U_Rank_Test_Accession_Count_1',
-                'Mann_Whitney_U_Rank_Test_Accession_Count_2',
-                'T_Test_Statistics',
-                'T_Test_P_Value',
-                'T_Test_Accession_Count_1',
-                'T_Test_Accession_Count_2',
-                'Chi_Square_Test_Statistics',
-                'Chi_Square_Test_P_Value',
-                'Chi_Square_Test_Accession_Count_1',
-                'Chi_Square_Test_Accession_Count_2',
-                'Fisher_Exact_Test_Statistics',
-                'Fisher_Exact_Test_P_Value',
-                'Fisher_Exact_Test_Accession_Count'
+                'Accession_Count',
+                'Normality_Statistic',
+                'Normality_P_Value',
+                'Test_Statistic',
+                'Test_P_Value'
             )
         )
 
