@@ -89,6 +89,7 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                         normality_pvalue = ''
                         test_statistic = ''
                         test_pvalue = ''
+                        neg_log2_test_pvalue = ''
 
                         # Make sure data is valid for shapiro normality testing
                         if allele_phenotype_dict[allele_combination[0]] and allele_phenotype_dict[allele_combination[1]]:
@@ -135,6 +136,11 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                                 # Get test statistic and p-value
                                                 test_statistic = res_mannwhitneyu_statistic
                                                 test_pvalue = res_mannwhitneyu_pvalue
+                                                # Calculate negative log2 p-value
+                                                if float(test_pvalue) < 1:
+                                                    neg_log2_test_pvalue = -1 * math.log2(float(test_pvalue))
+                                                else:
+                                                    neg_log2_test_pvalue = 0
                                             except RuntimeWarning as e:
                                                 res_mannwhitneyu = None
                                             except Exception as e:
@@ -142,29 +148,29 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
 
                                             if res_mannwhitneyu:
                                                 if test_pvalue != '':
-                                                    if float(test_pvalue) < float(p_value_filtering_threshold):
-                                                        if gene_array:
-                                                            if len(gene_array) > 0:
-                                                                for gene in gene_array:
-                                                                    output_array.append(
-                                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                                            chromosome,
-                                                                            position,
-                                                                            gene,
-                                                                            allele_combination_1,
-                                                                            allele_combination_2,
-                                                                            phenotype,
-                                                                            phenotype_data_type,
-                                                                            test_method,
-                                                                            phenotype_category_1,
-                                                                            phenotype_category_2,
-                                                                            accession_count,
-                                                                            normality_statistic,
-                                                                            normality_pvalue,
-                                                                            test_statistic,
-                                                                            test_pvalue
-                                                                        )
+                                                    if gene_array:
+                                                        if len(gene_array) > 0:
+                                                            for gene in gene_array:
+                                                                output_array.append(
+                                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                        chromosome,
+                                                                        position,
+                                                                        gene,
+                                                                        allele_combination_1,
+                                                                        allele_combination_2,
+                                                                        phenotype,
+                                                                        phenotype_data_type,
+                                                                        test_method,
+                                                                        phenotype_category_1,
+                                                                        phenotype_category_2,
+                                                                        accession_count,
+                                                                        normality_statistic,
+                                                                        normality_pvalue,
+                                                                        test_statistic,
+                                                                        test_pvalue,
+                                                                        neg_log2_test_pvalue
                                                                     )
+                                                                )
                                         else:
                                             # Normally distributed, run t-test
                                             try:
@@ -189,6 +195,11 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                                 # Get test statistic and p-value
                                                 test_statistic = res_ttest_statistic
                                                 test_pvalue = res_ttest_pvalue
+                                                # Calculate negative log2 p-value
+                                                if float(test_pvalue) < 1:
+                                                    neg_log2_test_pvalue = -1 * math.log2(float(test_pvalue))
+                                                else:
+                                                    neg_log2_test_pvalue = 0
                                             except RuntimeWarning as e:
                                                 res_ttest = None
                                             except Exception as e:
@@ -196,29 +207,29 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
 
                                             if res_ttest:
                                                 if test_pvalue != '':
-                                                    if float(test_pvalue) < float(p_value_filtering_threshold):
-                                                        if gene_array:
-                                                            if len(gene_array) > 0:
-                                                                for gene in gene_array:
-                                                                    output_array.append(
-                                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                                            chromosome,
-                                                                            position,
-                                                                            gene,
-                                                                            allele_combination_1,
-                                                                            allele_combination_2,
-                                                                            phenotype,
-                                                                            phenotype_data_type,
-                                                                            test_method,
-                                                                            phenotype_category_1,
-                                                                            phenotype_category_2,
-                                                                            accession_count,
-                                                                            normality_statistic,
-                                                                            normality_pvalue,
-                                                                            test_statistic,
-                                                                            test_pvalue
-                                                                        )
+                                                    if gene_array:
+                                                        if len(gene_array) > 0:
+                                                            for gene in gene_array:
+                                                                output_array.append(
+                                                                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                        chromosome,
+                                                                        position,
+                                                                        gene,
+                                                                        allele_combination_1,
+                                                                        allele_combination_2,
+                                                                        phenotype,
+                                                                        phenotype_data_type,
+                                                                        test_method,
+                                                                        phenotype_category_1,
+                                                                        phenotype_category_2,
+                                                                        accession_count,
+                                                                        normality_statistic,
+                                                                        normality_pvalue,
+                                                                        test_statistic,
+                                                                        test_pvalue,
+                                                                        neg_log2_test_pvalue
                                                                     )
+                                                                )
                 elif phenotype_data_type == 'string':
                     for allele_combination in allele_combination_list:
 
@@ -232,6 +243,7 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                         normality_pvalue = ''
                         test_statistic = ''
                         test_pvalue = ''
+                        neg_log2_test_pvalue = ''
 
                         # Grab all distinct phenotype categories
                         unique_phenotype_category_array = []
@@ -278,34 +290,39 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                     # Get test statistic and p-value
                                     test_statistic = res_chi2_contingency_statistic
                                     test_pvalue = res_chi2_contingency_pvalue
+                                    # Calculate negative log2 p-value
+                                    if float(test_pvalue) < 1:
+                                        neg_log2_test_pvalue = -1 * math.log2(float(test_pvalue))
+                                    else:
+                                        neg_log2_test_pvalue = 0
                                 except Exception as e:
                                     res_chi2_contingency = None
 
                                 if res_chi2_contingency:
                                     if test_pvalue != '':
-                                        if float(test_pvalue) < float(p_value_filtering_threshold):
-                                            if gene_array:
-                                                if len(gene_array) > 0:
-                                                    for gene in gene_array:
-                                                        output_array.append(
-                                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                                chromosome,
-                                                                position,
-                                                                gene,
-                                                                allele_combination_1,
-                                                                allele_combination_2,
-                                                                phenotype,
-                                                                phenotype_data_type,
-                                                                test_method,
-                                                                phenotype_category_1,
-                                                                phenotype_category_2,
-                                                                accession_count,
-                                                                normality_statistic,
-                                                                normality_pvalue,
-                                                                test_statistic,
-                                                                test_pvalue
-                                                            )
+                                        if gene_array:
+                                            if len(gene_array) > 0:
+                                                for gene in gene_array:
+                                                    output_array.append(
+                                                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                            chromosome,
+                                                            position,
+                                                            gene,
+                                                            allele_combination_1,
+                                                            allele_combination_2,
+                                                            phenotype,
+                                                            phenotype_data_type,
+                                                            test_method,
+                                                            phenotype_category_1,
+                                                            phenotype_category_2,
+                                                            accession_count,
+                                                            normality_statistic,
+                                                            normality_pvalue,
+                                                            test_statistic,
+                                                            test_pvalue,
+                                                            neg_log2_test_pvalue
                                                         )
+                                                    )
 
                                 # Generate phenotype category combinations and/or permutations
                                 phenotype_category_combination_list = list(combinations(unique_phenotype_category_array, 2))
@@ -348,34 +365,39 @@ def process_line(header_array, line_array, gff_dict, accession_mapping_dict, acc
                                         # Get test statistic and p-value
                                         test_statistic = res_fisher_exact_statistic
                                         test_pvalue = res_fisher_exact_pvalue
+                                        # Calculate negative log2 p-value
+                                        if float(test_pvalue) < 1:
+                                            neg_log2_test_pvalue = -1 * math.log2(float(test_pvalue))
+                                        else:
+                                            neg_log2_test_pvalue = 0
                                     except Exception as e:
                                         res_fisher_exact = None
 
                                     if res_fisher_exact is not None:
                                         if test_pvalue != '':
-                                            if float(test_pvalue) < float(p_value_filtering_threshold):
-                                                if gene_array:
-                                                    if len(gene_array) > 0:
-                                                        for gene in gene_array:
-                                                            output_array.append(
-                                                                "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                                                    chromosome,
-                                                                    position,
-                                                                    gene,
-                                                                    allele_combination_1,
-                                                                    allele_combination_2,
-                                                                    phenotype,
-                                                                    phenotype_data_type,
-                                                                    test_method,
-                                                                    phenotype_category_combination[0],
-                                                                    phenotype_category_combination[1],
-                                                                    accession_count,
-                                                                    normality_statistic,
-                                                                    normality_pvalue,
-                                                                    test_statistic,
-                                                                    test_pvalue
-                                                                )
+                                            if gene_array:
+                                                if len(gene_array) > 0:
+                                                    for gene in gene_array:
+                                                        output_array.append(
+                                                            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                                                chromosome,
+                                                                position,
+                                                                gene,
+                                                                allele_combination_1,
+                                                                allele_combination_2,
+                                                                phenotype,
+                                                                phenotype_data_type,
+                                                                test_method,
+                                                                phenotype_category_combination[0],
+                                                                phenotype_category_combination[1],
+                                                                accession_count,
+                                                                normality_statistic,
+                                                                normality_pvalue,
+                                                                test_statistic,
+                                                                test_pvalue,
+                                                                neg_log2_test_pvalue
                                                             )
+                                                        )
 
 
 def main(args):
@@ -534,7 +556,7 @@ def main(args):
     #######################################################################
     with open(output_file_path, 'w') as writer:
         writer.write(
-            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                 'Chromosome',
                 'Position',
                 'Gene',
@@ -549,7 +571,8 @@ def main(args):
                 'Normality_Statistic',
                 'Normality_P_Value',
                 'Test_Statistic',
-                'Test_P_Value'
+                'Test_P_Value',
+                'Negative_Log2_Test_P_Value'
             )
         )
 
