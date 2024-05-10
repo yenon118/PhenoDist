@@ -36,7 +36,7 @@ def main(args):
     #######################################################################
     with open(output_file_path, 'w') as writer:
         writer.write(
-            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                 'Chromosome',
                 'Position',
                 'Gene',
@@ -51,7 +51,8 @@ def main(args):
                 'Normality_Statistic',
                 'Normality_P_Value',
                 'Test_Statistic',
-                'Test_P_Value'
+                'Test_P_Value',
+                'Negative_Log2_Test_P_Value'
             )
         )
 
